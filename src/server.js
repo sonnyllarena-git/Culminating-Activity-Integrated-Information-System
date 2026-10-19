@@ -13,6 +13,14 @@ const {
 } = require("./studentService");
 
 const {
+  createCourse,
+  getCourse,
+  getAllCourses,
+  updateCourse,
+  deleteCourse
+} = require("./courseService");
+
+const {
   login,
   isAuthenticated
 } = require("./auth");
@@ -169,7 +177,6 @@ const server = http.createServer((req, res) => {
     req.method === "POST" &&
     parsedUrl.pathname === "/students"
   ) {
-
     if (!isAuthenticated(req)) {
       res.statusCode = 401;
 
@@ -225,7 +232,6 @@ const server = http.createServer((req, res) => {
     req.method === "PUT" &&
     parsedUrl.pathname.startsWith("/students/")
   ) {
-
     if (!isAuthenticated(req)) {
       res.statusCode = 401;
 
@@ -296,7 +302,6 @@ const server = http.createServer((req, res) => {
     req.method === "DELETE" &&
     parsedUrl.pathname.startsWith("/students/")
   ) {
-
     if (!isAuthenticated(req)) {
       res.statusCode = 401;
 
@@ -328,6 +333,224 @@ const server = http.createServer((req, res) => {
     return res.end(
       JSON.stringify({
         message: "Student deleted successfully"
+      })
+    );
+  }
+
+
+  // ==============================
+  // GET ALL COURSES
+  // ==============================
+
+  if (
+    req.method === "GET" &&
+    parsedUrl.pathname === "/courses"
+  ) {
+    const courses = getAllCourses();
+
+    res.statusCode = 200;
+
+    return res.end(
+      JSON.stringify(courses)
+    );
+  }
+
+
+  // ==============================
+  // GET ONE COURSE
+  // ==============================
+
+  if (
+    req.method === "GET" &&
+    parsedUrl.pathname.startsWith("/courses/")
+  ) {
+    const id = Number(
+      parsedUrl.pathname.split("/")[2]
+    );
+
+    const course = getCourse(id);
+
+    if (!course) {
+      res.statusCode = 404;
+
+      return res.end(
+        JSON.stringify({
+          error: "Course not found"
+        })
+      );
+    }
+
+    res.statusCode = 200;
+
+    return res.end(
+      JSON.stringify(course)
+    );
+  }
+
+
+  // ==============================
+  // CREATE COURSE
+  // PROTECTED ENDPOINT
+  // ==============================
+
+  if (
+    req.method === "POST" &&
+    parsedUrl.pathname === "/courses"
+  ) {
+    if (!isAuthenticated(req)) {
+      res.statusCode = 401;
+
+      return res.end(
+        JSON.stringify({
+          error: "Unauthorized"
+        })
+      );
+    }
+
+    let body = "";
+
+    req.on("data", chunk => {
+      body += chunk;
+    });
+
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body);
+
+        const course = createCourse(
+          data.title
+        );
+
+        res.statusCode = 201;
+
+        return res.end(
+          JSON.stringify(course)
+        );
+
+      } catch (err) {
+        res.statusCode = 400;
+
+        return res.end(
+          JSON.stringify({
+            error: err.message
+          })
+        );
+      }
+    });
+
+    return;
+  }
+
+
+  // ==============================
+  // UPDATE COURSE
+  // PROTECTED ENDPOINT
+  // ==============================
+
+  if (
+    req.method === "PUT" &&
+    parsedUrl.pathname.startsWith("/courses/")
+  ) {
+    if (!isAuthenticated(req)) {
+      res.statusCode = 401;
+
+      return res.end(
+        JSON.stringify({
+          error: "Unauthorized"
+        })
+      );
+    }
+
+    const id = Number(
+      parsedUrl.pathname.split("/")[2]
+    );
+
+    let body = "";
+
+    req.on("data", chunk => {
+      body += chunk;
+    });
+
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body);
+
+        const course = updateCourse(
+          id,
+          data.title
+        );
+
+        if (!course) {
+          res.statusCode = 404;
+
+          return res.end(
+            JSON.stringify({
+              error: "Course not found"
+            })
+          );
+        }
+
+        res.statusCode = 200;
+
+        return res.end(
+          JSON.stringify(course)
+        );
+
+      } catch (err) {
+        res.statusCode = 400;
+
+        return res.end(
+          JSON.stringify({
+            error: err.message
+          })
+        );
+      }
+    });
+
+    return;
+  }
+
+
+  // ==============================
+  // DELETE COURSE
+  // PROTECTED ENDPOINT
+  // ==============================
+
+  if (
+    req.method === "DELETE" &&
+    parsedUrl.pathname.startsWith("/courses/")
+  ) {
+    if (!isAuthenticated(req)) {
+      res.statusCode = 401;
+
+      return res.end(
+        JSON.stringify({
+          error: "Unauthorized"
+        })
+      );
+    }
+
+    const id = Number(
+      parsedUrl.pathname.split("/")[2]
+    );
+
+    const deleted = deleteCourse(id);
+
+    if (!deleted) {
+      res.statusCode = 404;
+
+      return res.end(
+        JSON.stringify({
+          error: "Course not found"
+        })
+      );
+    }
+
+    res.statusCode = 200;
+
+    return res.end(
+      JSON.stringify({
+        message: "Course deleted successfully"
       })
     );
   }

@@ -46,6 +46,35 @@ function validateStudentInput(name, program) {
 
 
 // ==============================
+// VALIDATE COURSE INPUT
+// ==============================
+
+function validateCourseInput(title) {
+  const errors = [];
+
+  if (
+    typeof title !== "string" ||
+    title.trim() === ""
+  ) {
+    errors.push(
+      "Course title is required and must be non-empty text."
+    );
+  }
+
+  if (
+    typeof title === "string" &&
+    title.length > 100
+  ) {
+    errors.push(
+      "Course title must not exceed 100 characters."
+    );
+  }
+
+  return errors;
+}
+
+
+// ==============================
 // VALIDATE LOGIN INPUT
 // ==============================
 
@@ -80,5 +109,6 @@ function validateLoginInput(username, password) {
 
 module.exports = {
   validateStudentInput,
+  validateCourseInput,
   validateLoginInput
 };

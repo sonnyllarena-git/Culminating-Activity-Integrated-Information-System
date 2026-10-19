@@ -2,11 +2,17 @@
 // IMPORTS
 // ==============================
 
-const db = require("./database");
-
 const {
   validateCourseInput
 } = require("./validation");
+
+const {
+  insertCourse,
+  findCourseById,
+  findAllCourses,
+  updateCourseRecord,
+  deleteCourseRecord
+} = require("./repositories/courseRepository");
 
 
 // ==============================
@@ -21,17 +27,12 @@ function createCourse(title) {
     throw new Error(errors[0]);
   }
 
-  const cleanTitle = title.trim();
+  const cleanTitle =
+    title.trim();
 
-  const result = db.prepare(`
-    INSERT INTO Course (title)
-    VALUES (?)
-  `).run(cleanTitle);
-
-  return {
-    id: result.lastInsertRowid,
-    title: cleanTitle
-  };
+  return insertCourse(
+    cleanTitle
+  );
 }
 
 
@@ -40,11 +41,7 @@ function createCourse(title) {
 // ==============================
 
 function getCourse(id) {
-  return db.prepare(`
-    SELECT *
-    FROM Course
-    WHERE id = ?
-  `).get(id);
+  return findCourseById(id);
 }
 
 
@@ -53,11 +50,7 @@ function getCourse(id) {
 // ==============================
 
 function getAllCourses() {
-  return db.prepare(`
-    SELECT *
-    FROM Course
-    ORDER BY id ASC
-  `).all();
+  return findAllCourses();
 }
 
 
@@ -73,18 +66,16 @@ function updateCourse(id, title) {
     throw new Error(errors[0]);
   }
 
-  const cleanTitle = title.trim();
+  const cleanTitle =
+    title.trim();
 
-  const result = db.prepare(`
-    UPDATE Course
-    SET title = ?
-    WHERE id = ?
-  `).run(
-    cleanTitle,
-    id
-  );
+  const changes =
+    updateCourseRecord(
+      id,
+      cleanTitle
+    );
 
-  if (result.changes === 0) {
+  if (changes === 0) {
     return null;
   }
 
@@ -97,12 +88,10 @@ function updateCourse(id, title) {
 // ==============================
 
 function deleteCourse(id) {
-  const result = db.prepare(`
-    DELETE FROM Course
-    WHERE id = ?
-  `).run(id);
+  const changes =
+    deleteCourseRecord(id);
 
-  return result.changes > 0;
+  return changes > 0;
 }
 
 

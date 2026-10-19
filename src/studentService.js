@@ -2,11 +2,17 @@
 // IMPORTS
 // ==============================
 
-const db = require("./database");
-
 const {
   validateStudentInput
 } = require("./validation");
+
+const {
+  insertStudent,
+  findStudentById,
+  findAllStudents,
+  updateStudentRecord,
+  deleteStudentRecord
+} = require("./repositories/studentRepository");
 
 
 // ==============================
@@ -23,19 +29,13 @@ function createStudent(name, program) {
     throw new Error(errors[0]);
   }
 
-  const result = db.prepare(`
-    INSERT INTO Student (name, program)
-    VALUES (?, ?)
-  `).run(
-    name.trim(),
-    program.trim()
-  );
+  const cleanName = name.trim();
+  const cleanProgram = program.trim();
 
-  return {
-    id: result.lastInsertRowid,
-    name: name.trim(),
-    program: program.trim()
-  };
+  return insertStudent(
+    cleanName,
+    cleanProgram
+  );
 }
 
 
@@ -44,11 +44,7 @@ function createStudent(name, program) {
 // ==============================
 
 function getStudent(id) {
-  return db.prepare(`
-    SELECT *
-    FROM Student
-    WHERE id = ?
-  `).get(id);
+  return findStudentById(id);
 }
 
 
@@ -57,11 +53,7 @@ function getStudent(id) {
 // ==============================
 
 function getAllStudents() {
-  return db.prepare(`
-    SELECT *
-    FROM Student
-    ORDER BY id ASC
-  `).all();
+  return findAllStudents();
 }
 
 
@@ -69,7 +61,11 @@ function getAllStudents() {
 // UPDATE STUDENT
 // ==============================
 
-function updateStudent(id, name, program) {
+function updateStudent(
+  id,
+  name,
+  program
+) {
   const errors = validateStudentInput(
     name,
     program
@@ -79,17 +75,16 @@ function updateStudent(id, name, program) {
     throw new Error(errors[0]);
   }
 
-  const result = db.prepare(`
-    UPDATE Student
-    SET name = ?, program = ?
-    WHERE id = ?
-  `).run(
-    name.trim(),
-    program.trim(),
-    id
+  const cleanName = name.trim();
+  const cleanProgram = program.trim();
+
+  const changes = updateStudentRecord(
+    id,
+    cleanName,
+    cleanProgram
   );
 
-  if (result.changes === 0) {
+  if (changes === 0) {
     return null;
   }
 
@@ -102,12 +97,10 @@ function updateStudent(id, name, program) {
 // ==============================
 
 function deleteStudent(id) {
-  const result = db.prepare(`
-    DELETE FROM Student
-    WHERE id = ?
-  `).run(id);
+  const changes =
+    deleteStudentRecord(id);
 
-  return result.changes > 0;
+  return changes > 0;
 }
 
 

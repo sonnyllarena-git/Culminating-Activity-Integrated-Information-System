@@ -21,6 +21,10 @@ const {
 } = require("./courseService");
 
 const {
+  buildStudentExport
+} = require("./dataService");
+
+const {
   login,
   isAuthenticated
 } = require("./auth");
@@ -115,6 +119,34 @@ const server = http.createServer((req, res) => {
     });
 
     return;
+  }
+
+
+  // ==============================
+  // EXPORT STUDENTS AS JSON
+  // ==============================
+
+  if (
+    req.method === "GET" &&
+    parsedUrl.pathname === "/export/students"
+  ) {
+    const exportData =
+      buildStudentExport();
+
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="students-export.json"'
+    );
+
+    res.statusCode = 200;
+
+    return res.end(
+      JSON.stringify(
+        exportData,
+        null,
+        2
+      )
+    );
   }
 
 
@@ -534,25 +566,36 @@ const server = http.createServer((req, res) => {
       parsedUrl.pathname.split("/")[2]
     );
 
-    const deleted = deleteCourse(id);
+    try {
+      const deleted = deleteCourse(id);
 
-    if (!deleted) {
-      res.statusCode = 404;
+      if (!deleted) {
+        res.statusCode = 404;
+
+        return res.end(
+          JSON.stringify({
+            error: "Course not found"
+          })
+        );
+      }
+
+      res.statusCode = 200;
 
       return res.end(
         JSON.stringify({
-          error: "Course not found"
+          message: "Course deleted successfully"
+        })
+      );
+
+    } catch (err) {
+      res.statusCode = 400;
+
+      return res.end(
+        JSON.stringify({
+          error: err.message
         })
       );
     }
-
-    res.statusCode = 200;
-
-    return res.end(
-      JSON.stringify({
-        message: "Course deleted successfully"
-      })
-    );
   }
 
 

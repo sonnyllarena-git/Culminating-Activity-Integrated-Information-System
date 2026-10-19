@@ -1,53 +1,84 @@
 # Student Records Management System
 
-A simple integrated information system built for CCIT102 - Integrative Programming 1.
+A culminating project for **CCIT102 - Integrative Programming 1**.
 
-This project demonstrates the integration of:
+This project is an integrated information system built using Node.js, SQLite, REST APIs, centralized validation, authentication, JSON export, automated testing, layered architecture, and Git version control.
 
-- JavaScript and Node.js
-- Modular application design
-- SQLite database
-- REST API
+---
+
+# Project Overview
+
+The Student Records Management System manages:
+
+- Students
+- Courses
+- Enrollments
+
+The system includes:
+
+- Full CRUD for Students
+- Full CRUD for Courses
+- Authentication for modifying data
 - Centralized validation
-- Authentication
-- Protected endpoints
+- JSON student export
+- Relational database relationships
+- Layered architecture
 - Unit testing
 - Integration testing
-- Git version control
+- Incremental Git development
 
 ---
 
-## Project Overview
+# System Features
 
-The Student Records Management System manages student records using a layered application structure.
+## Student Management
 
-The system contains three related database entities:
+The system supports:
 
-- Student
-- Course
-- Enrollment
+- Create Student
+- View all Students
+- View one Student
+- Update Student
+- Delete Student
 
-The `Enrollment` table connects students and courses.
+Student fields:
+
+- `id`
+- `name`
+- `program`
 
 ---
 
-## Application Architecture
+## Course Management
 
-The project uses a layered structure:
+The system supports:
+
+- Create Course
+- View all Courses
+- View one Course
+- Update Course
+- Delete Course
+
+Course fields:
+
+- `id`
+- `title`
+
+---
+
+## Enrollment Relationship
+
+The system contains an `Enrollment` table that connects Students and Courses.
+
+Fields:
+
+- `id`
+- `student_id`
+- `course_id`
+- `grade`
+
+The relationships are:
 
 ```text
-Client
-  |
-  v
-REST API
-  |
-  v
-Student Service
-  |
-  +--> Validation
-  |
-  v
-Database Layer
-  |
-  v
-SQLite Database
+Student 1 ---- many Enrollment
+Course  1 ---- many Enrollment
